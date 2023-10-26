@@ -17,7 +17,7 @@ def geojs_API():
 
 #===weatherAPI with latitude/longitude============
 def weatherAPI_current():
-    weather_request_url = "http://api.weatherapi.com/v1/current.json?key=ed44da5ef31149198b364255230410&q={}&aqi=no&lang={}".format(latitude +"," + longitude,langtype)
+    weather_request_url = "http://api.weatherapi.com/v1/current.json?key=APIkey here&q={}&aqi=no&lang={}".format(latitude +"," + longitude,langtype)
     weatherdata = requests.get(weather_request_url).json()
     #===weatherAPIから自分の現在地のcity/region/country/time/天気結果/気温結果/天気アイコンURLを取得==========
     city = weatherdata["location"]["name"]
@@ -65,7 +65,7 @@ def wiki_id():
 
 #===weatherAPI for random City（ランダムCityの値を使用）===========================================
 def weatherAPI_city():
-    wheather_request_url2 = "http://api.weatherapi.com/v1/current.json?key=ed44da5ef31149198b364255230410&q={}&aqi=no&lang={}".format(cityname, langtype)
+    wheather_request_url2 = "http://api.weatherapi.com/v1/current.json?key=APIkey here&q={}&aqi=no&lang={}".format(cityname, langtype)
     wheatherdata2 = requests.get(wheather_request_url2).json()
     #===weatherAPIからランダムcityのtime/天気結果/気温結果/天気アイコンURLを取得==========
     tempresult2 = wheatherdata2["current"]["temp_c"]
