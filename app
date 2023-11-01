@@ -6,7 +6,6 @@ import streamlit as st
 import pandas as pd
 
 #▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-
 #===geojs API===========================================
 def geojs_API():
     geo_request_url = "https://get.geojs.io/v1/ip/geo.json"
@@ -15,11 +14,12 @@ def geojs_API():
     longitude=geodata["longitude"]
     return latitude, longitude
 
-#===weatherAPI with latitude/longitude============
+#===weatherAPI with latitude&longitude============
 def weatherAPI_current():
-    weather_request_url = "http://api.weatherapi.com/v1/current.json?key=APIkey here&q={}&aqi=no&lang={}".format(latitude +"," + longitude,langtype)
+    key = st.secrets["key"]
+    weather_request_url = "http://api.weatherapi.com/v1/current.json?key={}&q={}&aqi=no&lang=en".format(key, latitude +"," + longitude)
     weatherdata = requests.get(weather_request_url).json()
-    #===weatherAPIから自分の現在地のcity/region/country/time/天気結果/気温結果/天気アイコンURLを取得==========
+    #=============
     city = weatherdata["location"]["name"]
     region = weatherdata["location"]["region"]
     country = weatherdata["location"]["country"]
@@ -28,7 +28,7 @@ def weatherAPI_current():
     weathericon = "https:" + weatherdata["current"]["condition"]["icon"]
     return city, region, country, time, tempresult, weathericon
 
-#===wikipedia main API===========================================
+#===wikipediaMain API===========================================
 def wiki():
     wiki_request_url = "https://{}.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles={}".format(langtype, cityname)
     wikidata = requests.get(wiki_request_url).json()
@@ -36,7 +36,7 @@ def wiki():
     return wikisummary
 
 
-#===wikipedia API for latitude/longitude EN===========================================
+#===wikipediaAPI for latitude&longitude EN===========================================
 def wikigeo():
     wikigeo_request_url = "https://en.wikipedia.org/w/api.php?format=json&action=query&formatversion=2&prop=coordinates&titles={}".format(cityname)
     wikigeodata = requests.get(wikigeo_request_url).json()
@@ -44,14 +44,13 @@ def wikigeo():
     wikigeolon=wikigeodata["query"]["pages"][0]["coordinates"][0]["lon"]
     return wikigeolat, wikigeolon
 
-#===wikipedia API for latitude/longitude JP===========================================
+#===wikipediaAPI for latitude&longitude JP===========================================
 def wikigeoJP():
     wikigeoJP_request_url = "https://en.wikipedia.org/w/api.php?format=json&action=query&formatversion=2&prop=coordinates&titles={}".format(cityname1)
     wikigeoJPdata = requests.get(wikigeoJP_request_url).json()
     wikigeoJPlat=wikigeoJPdata["query"]["pages"][0]["coordinates"][0]["lat"]
     wikigeoJPlon=wikigeoJPdata["query"]["pages"][0]["coordinates"][0]["lon"]
     return wikigeoJPlat, wikigeoJPlon
-
 
 #===wikipedia Summary API===========================================
 def wiki_id():
@@ -63,11 +62,12 @@ def wiki_id():
     wikidesc=wikiiddata["description"]
     return pageid, wikiurl, wikithumnail, wikidesc
 
-#===weatherAPI for random City（ランダムCityの値を使用）===========================================
+#===weatherAPI for random city===========================================
 def weatherAPI_city():
-    wheather_request_url2 = "http://api.weatherapi.com/v1/current.json?key=APIkey here&q={}&aqi=no&lang={}".format(cityname, langtype)
+    key = st.secrets["key"]
+    wheather_request_url2 = "http://api.weatherapi.com/v1/current.json?key={}&q={}&aqi=no&lang={}".format(key, cityname, langtype)
     wheatherdata2 = requests.get(wheather_request_url2).json()
-    #===weatherAPIからランダムcityのtime/天気結果/気温結果/天気アイコンURLを取得==========
+    #=============
     tempresult2 = wheatherdata2["current"]["temp_c"]
     weathericon2 = "https:" + wheatherdata2["current"]["condition"]["icon"]
     time2 = wheatherdata2["location"]["localtime"]
@@ -369,9 +369,8 @@ def cityname_trans():
     elif cityname == "ジャカルタ":
         cityname1 = "Jakarta"
         return cityname1
-    
-    
-
+        
+        
 #▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 #===set button================================================
@@ -381,13 +380,14 @@ with col1:
 with col2:
     st.write("")
     button = st.button("Explore")
+    
+
 
 #===execute button=====================================
 if button:
     if langradio == "EN":
-        
         langtype="en"
-
+        #===================================================
         geojs_result = geojs_API()
         latitude = geojs_result[0]
         longitude = geojs_result[1]
@@ -408,10 +408,7 @@ if button:
             st.write(city + "/" + country)
             st.write(str(tempresult) + "℃")
 
-
-        st.markdown("---")   
-
-
+        st.markdown("---")    
     #===random City array===========================================
         citylist=["Ankara","Beijing","Brasília","Windhoek","Ulaanbaatar","Hanoi","Pyongyang","Cairo","Ottawa", \
                 "Lima","Khartoum","Dar es Salaam","Yamoussoukro","Dodoma","Moscow","Baku","Abidjan","Suva","Riyadh", \
@@ -420,26 +417,25 @@ if button:
                 "Havana","Lilongwe","Helsinki","Abuja","Nairobi","Nuuk","Pretoria","Phnom Penh","Baghdad","Jakarta", \
                 ]
         
-
         cityname=random.choice(citylist)
 
 
 
     #===generate SkyScanner URL===========================================
-    #date: 7days&14days from today
+    #date 7days&14days from today
         td = timedelta(days=7)
         day = datetime.now()
         date = day.date()
         oneweek = date + td
         twoweek =  date + td + td
-    #Origin
+    #origin
         ori = "tyoa"
-    #Destination
+    #destination
         dest = aireport_code()
-    #SkyScanner URL
+    #generate SkyScanner URL
         skyscannerURL = "https://www.skyscanner.jp/transport/flights/{}/{}/{}/{}/?adults=1&adultsv2=1&cabinclass=economy&children=0&childrenv2=&inboundaltsenabled=false&infants=0&originentityid=27542089&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1&locale=en-US".format(ori,dest,oneweek,twoweek)
 
-    #===API result=================================
+    #====================================
         wiki_id_EN_result = wiki_id()
         pageid = wiki_id_EN_result[0]
         wikiurl = wiki_id_EN_result[1]
@@ -458,7 +454,7 @@ if button:
         wikigeolat = wikigeodata[0]
         wikigeolon= wikigeodata[1]
 
-    #===generate googleMap URL===========================================
+    #===generate googleMap URL for random city===========================================
         googlecity = cityname.replace(" ", "")
         googlecountry = country2.replace(" ", "")
         googlemapurl="https://www.google.com/maps/search/?api=1&query={}".format(googlecity + "/" + googlecountry)
@@ -486,7 +482,7 @@ if button:
             })
         st.map(data, zoom=1, size=200000)
 
-        
+
     #◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇
 
     else:
@@ -512,7 +508,7 @@ if button:
             st.write(city + "/" + country)
             st.write(str(tempresult) + "℃")
             
-        st.markdown("---")   
+        st.markdown("---")    
 
     #===random City array===========================================
         citylist=["アンカラ","北京市","ブラジリア","ウィントフック","ウランバートル","ハノイ","平壌直轄市","カイロ","オタワ", \
@@ -524,10 +520,8 @@ if button:
 
         cityname=random.choice(citylist)
 
-
-
     #===generate SkyScanner URL===========================================
-    #date: 7days&14days from today
+    #date 7days&14days from today
         td = timedelta(days=7)
         day = datetime.now()
         date = day.date()
@@ -539,7 +533,7 @@ if button:
     #destination
         dest = aireport_code()
 
-    #SkyScanner URL
+    #generate SkyScanner URL
         skyscannerURL = "https://www.skyscanner.jp/transport/flights/{}/{}/{}/{}/?adults=1&adultsv2=1&cabinclass=economy&children=0&childrenv2=&inboundaltsenabled=false&infants=0&originentityid=27542089&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=1&locale=ja-JP".format(ori,dest,oneweek,twoweek)
 
     #====================================
@@ -564,7 +558,7 @@ if button:
         wikigeoJPlat = wikigeoJPdata[0]
         wikigeoJPlon= wikigeoJPdata[1]
 
-    #===generate googleMap URL===========================================
+    #===generate googleMap URL for random city===========================================
         googlecity = cityname.replace(" ","")
         googlecountry = wikidesc.replace(" ","")
         if cityname == "ロンドン":
@@ -575,7 +569,7 @@ if button:
             googlecountry = "ボリビア"
 
         googlemapurl="https://www.google.com/maps/search/?api=1&query={}".format(googlecity + "/" + googlecountry)
-         
+        
 
     #=========================
         col1, col2, col3 = st.columns([2,4.2,3.8])
@@ -601,4 +595,3 @@ if button:
             })
         st.map(data, zoom=1, size=200000)
         
-
